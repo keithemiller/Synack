@@ -98,10 +98,11 @@
    			.attr("transform", "translate(0," + height + ")")
    			.call(xAxis)
    			.selectAll("text")
-   				.attr("x",-20)
-   				.attr("y",15)
-   				.attr("fill", "black")
-   				.attr("transform", "rotate(-50)");
+   				.attr("x", 1)
+   				.attr("y", 5)
+   				.style("text-anchor", "end")
+   				.attr("fill", function(d,i) {if (i == lstLen) return "none"; else return "black";})
+   				.attr("transform", "rotate(-65)");
 	});
 	</script>
 </body>
