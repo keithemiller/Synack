@@ -1,0 +1,19 @@
+## This configuration file is written in YAML. Google will help if you are confused.
+csv_file : output.csv
+sellers :
+    - Keith
+    - Jon
+    - Jose
+    - Reveena
+    - Jori
+    - JC
+    - Frankie
+    - Jake
+    - Mike
+items :
+    - name  : snickers
+      price : 1
+    - name  : skittles
+      price : 1
+    - name  : tshirt
+      price : 10

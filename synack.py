@@ -8,35 +8,37 @@ SUPER AUTOMATED SNACKAHACK
 
 from Tkinter import *
 import csv
+import yaml
 
 class App:
+
+    ## Configuration YAML file -  default name to search for is config.yaml
+    ## Default name in App.__init__ keyword
+    yaml_filename = None
+    yaml_dict = None
+    
+    ## CSV where data will be written into
+    csv_filename = None
+
+    ## Lists to be read from the YAML configuration file
+    sellers = []
+    items = []
 
     ## Attributes to be processed after GUI finishes
     snack = None
     count = 0
     seller = None
     
-    perm_snack = None
-    perm_seller = None
-    perm_count = None
-    perm_price = None
-    
-    
-    def __init__(self, master):
+    def __init__(self, master, yaml_filename="config.yaml"):
         
+        # Sets the YAML filename to keyword argument
+        self.yaml_filename = yaml_filename
+
+        # Creates the frame with parameters
         frame = Frame(master)
         frame.pack()
         
-        self.snacks = []
-        pics = []
-        self.prices = []
-        with open('GUI.conf', 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                self.snacks.append(row[0])
-                pics.append(row[1])
-                self.prices.append(int(row[2]))
-        
+        self._loadconfigfile() 
         
         self.top_label = Label(master, text="What snack?")
         self.top_label.pack()
@@ -46,18 +48,17 @@ class App:
         self.snack = StringVar(master)
         self.snack.set("NOT SELECTED")
                 
-        self.option_menu = apply(OptionMenu, (master, self.snack) + tuple(self.snacks))#OptionMenu(master, self.snack, snacks[0], snacks[1], snacks[2])
+        self.option_menu = apply(OptionMenu, (master, self.snack) + tuple(self.items))
         self.option_menu.pack()
         
         self.top_label = Label(master, text="Who sold it?")
         self.top_label.pack()
 
         
-        sellers = ["Keith", "Jon", "Jose"]        
         self.seller = StringVar(master)       
         self.seller.set("NOT SELECTED")
 
-        self.seller_menu = apply(OptionMenu, (master, self.seller) + tuple(sellers))        
+        self.seller_menu = apply(OptionMenu, (master, self.seller) + tuple(self.sellers))        
         self.seller_menu.pack()
         
         self.top_label = Label(master, text="How many?")
@@ -70,19 +71,23 @@ class App:
         self.buttontext.set("Confirm Order")
         Button(master, textvariable=self.buttontext, command=self.clicked).pack()        
         
+    def _loadconfigfile(self):
+        with open(self.yaml_filename, 'r') as f:
+            self.yaml_dict = yaml.load(f) 
+
+        self.sellers = self.yaml_dict["sellers"]
+        self.items = map(lambda x: x["name"], self.yaml_dict["items"])
+
     
-        '''
-        self.quit_button = Button(frame, text="QUIT", 
-                                  fg="red", command=frame.quit)
-        self.quit_button.pack(side=LEFT)
-        '''
     def clicked(self):
-        self.perm_seller = self.seller.get()
-        self.perm_snack = self.snack.get()
-        self.perm_count = int(self.entrytext.get())  
-        index = self.snacks.index(self.perm_snack)
-        self.perm_price = self.perm_count * self.prices[index]
-        string = "Price = $" + str(self.perm_price)      
+        seller = self.seller.get()
+        snack = self.snack.get()
+        self.count = int(self.entrytext.get())  
+        price = self.count 
+        print "price"
+        for x in self.yaml_dict["items"]:
+            if x["name"] == snack: price *= x["price"]
+        string = "Price = $" + str(price)      
         label = Label(Toplevel(), text=string, height=0, width=20)        
         label.pack()        
         
@@ -94,7 +99,6 @@ if __name__ == '__main__':
     app = App(root)
     
     root.mainloop()
-    print app.perm_seller    
-    print app.perm_snack
+    print app.seller    
+    print app.snack
     print app.count
-    #root.destroy()
