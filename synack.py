@@ -9,6 +9,7 @@ SUPER AUTOMATED SNACKAHACK
 from Tkinter import *
 import csv
 import yaml
+import time
 
 class App:
 
@@ -36,6 +37,7 @@ class App:
 
         # Creates the frame with parameters
         frame = Frame(master)
+        frame.pack_propagate(0)
         frame.pack()
         
         self._loadconfigfile() 
@@ -75,19 +77,29 @@ class App:
         with open(self.yaml_filename, 'r') as f:
             self.yaml_dict = yaml.load(f) 
 
+        self.csv_filename = self.yaml_dict["csv_file"]
         self.sellers = self.yaml_dict["sellers"]
         self.items = map(lambda x: x["name"], self.yaml_dict["items"])
 
+    def _appendcsv(self, data):
+        with open(self.csv_filename, 'a') as output:
+            writer = csv.writer(output, delimiter=',',)
+            writer.writerow(data)
     
     def clicked(self):
+        ts = time.localtime()
+        date = "%d/%d/%d" % (ts[1], ts[2], ts[0])
+        timestamp = " %02d:%02d" % (ts[3], ts[4]) 
         seller = self.seller.get()
         snack = self.snack.get()
-        self.count = int(self.entrytext.get())  
-        price = self.count 
+        count = int(self.entrytext.get())  
+        price = count 
         print "price"
         for x in self.yaml_dict["items"]:
             if x["name"] == snack: price *= x["price"]
         string = "Price = $" + str(price)      
+        data = [date, timestamp, snack, count, seller]
+        self._appendcsv(data)
         label = Label(Toplevel(), text=string, height=0, width=20)        
         label.pack()        
         
